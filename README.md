@@ -2,9 +2,14 @@
 
 ## Contents
 
+- [About the Project](#about-the-project)
 - [Dependencies and Installation](#dependencies-and-installation)
-- [Team Management Protocols]()
-- [Pseudocode and Organization]()
+- [Team Management Protocols](#team-management-protocols)
+- [Pseudocode and Organization](#pseudocode-and-organization)
+
+## About the Project
+
+This project contains the codebase for the entire payload system for the 2023-2024 NASA Student Launch Competition.
 
 ## Dependencies and Installation
 #### Downloading Code
@@ -14,6 +19,8 @@ cd PROJECT_ROOTDIRECTORY
 git clone https://github.com/EnriqueM12/NUSTARS-Payload_Electrical-Autopilot NUSTARS-Autopilot
 cd NUSTARS-Autopilot
 ```
+
+The payload scripts should work directy if you open them up in the Arduino IDE. Bellow are instructions in how to build the client in a local system
 
 #### Setting up Locally
 
