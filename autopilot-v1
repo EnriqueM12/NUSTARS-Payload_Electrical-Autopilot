@@ -1,0 +1,41 @@
+#include <Servo.h>
+#include Adafruit GPS libary  OR TinyGPSplus// for gps commands
+#include <Adafruit_Sensor.h> // necessary library to suppplemtn, unifies adafruit
+#include Adafruit_BNO055 // for orientation sensor commands
+#include "Adafruit_BMP3XX.h" //
+
+GPS gps;
+Adafruit_BNO055 orien = Adafruit_BNO055(pin_number);
+Adafruit_BMP3XX 	altim
+
+const int sensorPin = AO; // Analog pin for sensor input
+const int servoPin = 9; // Digital pin for servo control
+
+Servo myServo;
+
+void setup() {
+  Serial.begin(9600);
+  myServo.attach(servoPin);
+}
+
+void loop() {
+  int sensorValue = analogRead(sensorPin);
+  int angle = map(sensorValue, 0, 1023, 0, 180); // Map sensor value to servo angle range
+
+  // Safety checks to prevent extreme servo movements
+  if (angle < 0) {
+    angle = 0;
+  } else if (angle > 180) {
+    angle = 180;
+  }
+
+  myServo.write(angle); // Set servo angle
+
+  Serial.print("Sensor Value: ");
+  Serial.print(sensorValue);
+  Serial.print(" Servo Angle: ");
+  Serial.println(angle);
+
+  delay(1);
+
+}
