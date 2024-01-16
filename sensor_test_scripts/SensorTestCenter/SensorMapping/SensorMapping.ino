@@ -1,40 +1,3 @@
-//Include any libraries here:
-
-// GPS ------------------------------------------------------------------------------
-#include <Adafruit_GPS.h> //Install "Adafruit_GPS" library and go to File → Examples → Adafruit_GPS → GPS_HardwareSerial_Parsing or GPS_SoftwareSerial_Parsing for more examples
-
-#include <Adafruit_GPS.h>
-#include <SoftwareSerial.h>
-
-// Connect the GPS Power pin to 5V
-// Connect the GPS Ground pin to ground
-// Connect the GPS TX (transmit) pin to Digital 8
-// Connect the GPS RX (receive) pin to Digital 7
-
-// you can change the pin numbers to match your wiring:
-SoftwareSerial mySerial(8, 7);
-Adafruit_GPS GPS(&mySerial);
-
-// Set GPSECHO to 'false' to turn off echoing the GPS data to the Serial console
-// Set to 'true' if you want to debug and listen to the raw GPS sentences
-#define GPSECHO  true
-
-uint32_t timer = millis(); // To keep track of time
-
-//Notes:
-//  - Serial baud rate must be 115200 so we can read the GPS fast enough and echo without dropping chars, set GPS.begin(9600) which is the default standard for NMEA (National Marine Electronics Association)
-//    - RMC (Recommended Minimum Navigation Information)
-//        - Time, date, latitude, longitude, speed over ground (knots), course over ground (degrees), magnetic variation (E or W), Hemisphere indicator for latitude (N or S)
-//    - GGA (Global Positioning System Fix Data)
-//        - Number of satellites in view, GPS fix quality, altitude, geodial separation, horizontal dilution of precision (HDOP) (calultates the potential error in horizontal position)
-//  - I am choosing RMC+GGA for our tests and will output all possible data
-// MORE INFO -- https://learn.adafruit.com/adafruit-ultimate-gps/parsed-data-output
-// WIRING    -- https://learn.adafruit.com/adafruit-ultimate-gps/arduino-wiring
-//-------------------------------------------------------------------------------------
-
-
-
-
 //This script will be used to get the values from all of the sensors that we need so we know their optimal ranges for mapping. 
 //  Wire each of them idividually and take measurements of their maximum and minimum values. For the servo don't need to check since
 //  we are going to be mapping numbers 0 --> 1023 to 0 --> 179 (analogue values --> degrees).
@@ -65,6 +28,121 @@ uint32_t timer = millis(); // To keep track of time
 //        - NEUTRAL:
 //        - MIN:
 
+// COMMENT OUT THE OTHERS WHEN TESTING WITH /* -> */ 
+
+// GPS ------------------------------------------------------------------------------
+#include <Adafruit_GPS.h> //Install "Adafruit_GPS" library and go to File → Examples → Adafruit_GPS → GPS_HardwareSerial_Parsing or GPS_SoftwareSerial_Parsing for more examples
+#include <SoftwareSerial.h>
+
+// Connect the GPS Power pin to 5V
+// Connect the GPS Ground pin to ground
+// Connect the GPS TX (transmit) pin to Digital 8
+// Connect the GPS RX (receive) pin to Digital 7
+
+// you can change the pin numbers to match your wiring:
+SoftwareSerial mySerial(8, 7);
+Adafruit_GPS GPS(&mySerial);
+
+// Set GPSECHO to 'false' to turn off echoing the GPS data to the Serial console
+// Set to 'true' if you want to debug and listen to the raw GPS sentences
+#define GPSECHO  true
+
+uint32_t timer = millis(); // To keep track of time
+
+// Notes:
+//  - Serial baud rate must be 115200 so we can read the GPS fast enough and echo without dropping chars, set GPS.begin(9600) which is the default standard for NMEA (National Marine Electronics Association)
+//    - RMC (Recommended Minimum Navigation Information)
+//        - Time, date, latitude, longitude, speed over ground (knots), course over ground (degrees), magnetic variation (E or W), Hemisphere indicator for latitude (N or S)
+//    - GGA (Global Positioning System Fix Data)
+//        - Number of satellites in view, GPS fix quality, altitude, geodial separation, horizontal dilution of precision (HDOP) (calultates the potential error in horizontal position)
+//  - I am choosing RMC+GGA for our tests and will output all possible data
+// MORE INFO -- https://learn.adafruit.com/adafruit-ultimate-gps/parsed-data-output
+// WIRING    -- https://learn.adafruit.com/adafruit-ultimate-gps/arduino-wiring
+//-------------------------------------------------------------------------------------
+
+
+// Accelerometer ----------------------------------------------------------------------
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_ADXL375.h> // Install "Adafruit ADXL375" library and (all of the other libraries that come with it) go to File → Examples → Adafruit_ADXL375 → sensortest for more examples
+
+#define ADXL375_SCK 13
+#define ADXL375_MISO 12
+#define ADXL375_MOSI 11
+#define ADXL375_CS 10
+
+// Assign a unique ID to this sensor at the same time 
+Adafruit_ADXL375 accel = Adafruit_ADXL375(12345);
+
+void displayDataRate(void) {
+  Serial.print  ("Data Rate:    ");
+
+  switch(accel.getDataRate())
+  {
+    case ADXL343_DATARATE_3200_HZ:
+      Serial.print  ("3200 ");
+      break;
+    case ADXL343_DATARATE_1600_HZ:
+      Serial.print  ("1600 ");
+      break;
+    case ADXL343_DATARATE_800_HZ:
+      Serial.print  ("800 ");
+      break;
+    case ADXL343_DATARATE_400_HZ:
+      Serial.print  ("400 ");
+      break;
+    case ADXL343_DATARATE_200_HZ:
+      Serial.print  ("200 ");
+      break;
+    case ADXL343_DATARATE_100_HZ:
+      Serial.print  ("100 ");
+      break;
+    case ADXL343_DATARATE_50_HZ:
+      Serial.print  ("50 ");
+      break;
+    case ADXL343_DATARATE_25_HZ:
+      Serial.print  ("25 ");
+      break;
+    case ADXL343_DATARATE_12_5_HZ:
+      Serial.print  ("12.5 ");
+      break;
+    case ADXL343_DATARATE_6_25HZ:
+      Serial.print  ("6.25 ");
+      break;
+    case ADXL343_DATARATE_3_13_HZ:
+      Serial.print  ("3.13 ");
+      break;
+    case ADXL343_DATARATE_1_56_HZ:
+      Serial.print  ("1.56 ");
+      break;
+    case ADXL343_DATARATE_0_78_HZ:
+      Serial.print  ("0.78 ");
+      break;
+    case ADXL343_DATARATE_0_39_HZ:
+      Serial.print  ("0.39 ");
+      break;
+    case ADXL343_DATARATE_0_20_HZ:
+      Serial.print  ("0.20 ");
+      break;
+    case ADXL343_DATARATE_0_10_HZ:
+      Serial.print  ("0.10 ");
+      break;
+    default:
+      Serial.print  ("???? ");
+      break;
+  }
+  Serial.println(" Hz");
+}
+
+// Notes:
+//  - FILL IN
+// MORE INFO -- https://www.adafruit.com/product/5374
+//-------------------------------------------------------------------------------------
+
+
+
+
+
 
 void setup() {
 //GPS SETUP -----------------------------------------------------------------------
@@ -88,6 +166,24 @@ void setup() {
   delay(1000);
 //-----------------------------------------------------------------------------------
 
+//ACCELEROMETER SETUP --------------------------------------------------------------
+  Serial.begin(115200);
+  while (!Serial);
+  Serial.println("ADXL375 Accelerometer Test"); Serial.println("");
+
+  // Initialise the sensor 
+  if(!accel.begin())
+  {
+    // Check to see if issue connecting to the sensor
+    Serial.println("Ooops, no ADXL375 detected ... Check your wiring!");
+    while(1);
+  }
+
+  // Display some basic information on this sensor 
+  accel.printSensorDetails();
+  displayDataRate();
+  Serial.println("");
+//----------------------------------------------------------------------------------
 }
 
 void loop() {
@@ -98,7 +194,7 @@ void loop() {
   //AOSRead();
 }
 
-void gpsRead() { //print all possible data given through RMC+GGA by using Software Serial Parsing
+void gpsRead() { // Print all possible data given through RMC+GGA by using Software Serial Parsing
   char c = GPS.read();
   // if you want to debug, this is a good time to do it!
   if ((c) && (GPSECHO))
@@ -157,8 +253,16 @@ void altRead() {
 
 }
 
-void accelRead() {
+void accelRead() { // Print X, Y, Z accelerations in m/s^2
+  // Check for sensor event
+  sensors_event_t event;
+  accel.getEvent(&event);
 
+  // Display the results (acceleration is measured in m/s^2 and is already converted into those units by the library)
+  Serial.print("X: "); Serial.print(event.acceleration.x); Serial.print("  ");
+  Serial.print("Y: "); Serial.print(event.acceleration.y); Serial.print("  ");
+  Serial.print("Z: "); Serial.print(event.acceleration.z); Serial.print("  ");Serial.println("m/s^2 ");
+  delay(500);
 }
 
 void currRead() {
