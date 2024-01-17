@@ -28,126 +28,153 @@
 //        - NEUTRAL:
 //        - MIN:
 
-// COMMENT OUT THE OTHERS WHEN TESTING WITH /* -> */ 
+// COMMENT OUT THE OTHERS WHEN TESTING WITH /* -> */ (comment out each of the collapsed sections, it will make it easier)
 
 // GPS ------------------------------------------------------------------------------
-#include <Adafruit_GPS.h> //Install "Adafruit_GPS" library and go to File → Examples → Adafruit_GPS → GPS_HardwareSerial_Parsing or GPS_SoftwareSerial_Parsing for more examples
-#include <SoftwareSerial.h>
+  #include <Adafruit_GPS.h> //Install "Adafruit_GPS" library and go to File → Examples → Adafruit_GPS → GPS_HardwareSerial_Parsing or GPS_SoftwareSerial_Parsing for more examples
+  #include <SoftwareSerial.h>
 
-// Connect the GPS Power pin to 5V
-// Connect the GPS Ground pin to ground
-// Connect the GPS TX (transmit) pin to Digital 8
-// Connect the GPS RX (receive) pin to Digital 7
+  // Connect the GPS Power pin to 5V
+  // Connect the GPS Ground pin to ground
+  // Connect the GPS TX (transmit) pin to Digital 8
+  // Connect the GPS RX (receive) pin to Digital 7
 
-// you can change the pin numbers to match your wiring:
-SoftwareSerial mySerial(8, 7);
-Adafruit_GPS GPS(&mySerial);
+  // you can change the pin numbers to match your wiring:
+  SoftwareSerial mySerial(8, 7);
+  Adafruit_GPS GPS(&mySerial);
 
-// Set GPSECHO to 'false' to turn off echoing the GPS data to the Serial console
-// Set to 'true' if you want to debug and listen to the raw GPS sentences
-#define GPSECHO  true
+  // Set GPSECHO to 'false' to turn off echoing the GPS data to the Serial console
+  // Set to 'true' if you want to debug and listen to the raw GPS sentences
+  #define GPSECHO  true
 
-uint32_t timer = millis(); // To keep track of time
+  uint32_t timer = millis(); // To keep track of time
 
-// Notes:
-//  - Serial baud rate must be 115200 so we can read the GPS fast enough and echo without dropping chars, set GPS.begin(9600) which is the default standard for NMEA (National Marine Electronics Association)
-//    - RMC (Recommended Minimum Navigation Information)
-//        - Time, date, latitude, longitude, speed over ground (knots), course over ground (degrees), magnetic variation (E or W), Hemisphere indicator for latitude (N or S)
-//    - GGA (Global Positioning System Fix Data)
-//        - Number of satellites in view, GPS fix quality, altitude, geodial separation, horizontal dilution of precision (HDOP) (calultates the potential error in horizontal position)
-//  - I am choosing RMC+GGA for our tests and will output all possible data
-// MORE INFO -- https://learn.adafruit.com/adafruit-ultimate-gps/parsed-data-output
-// WIRING    -- https://learn.adafruit.com/adafruit-ultimate-gps/arduino-wiring
+  // Notes:
+  //  - Serial baud rate must be 115200 so we can read the GPS fast enough and echo without dropping chars, set GPS.begin(9600) which is the default standard for NMEA (National Marine Electronics Association)
+  //    - RMC (Recommended Minimum Navigation Information)
+  //        - Time, date, latitude, longitude, speed over ground (knots), course over ground (degrees), magnetic variation (E or W), Hemisphere indicator for latitude (N or S)
+  //    - GGA (Global Positioning System Fix Data)
+  //        - Number of satellites in view, GPS fix quality, altitude, geodial separation, horizontal dilution of precision (HDOP) (calultates the potential error in horizontal position)
+  //  - I am choosing RMC+GGA for our tests and will output all possible data
+  // MORE INFO -- https://learn.adafruit.com/adafruit-ultimate-gps/parsed-data-output
+  // WIRING    -- https://learn.adafruit.com/adafruit-ultimate-gps/arduino-wiring
 //-------------------------------------------------------------------------------------
-
 
 // Accelerometer ----------------------------------------------------------------------
-#include <Wire.h>
-#include <Adafruit_Sensor.h>
-#include <Adafruit_ADXL375.h> // Install "Adafruit ADXL375" library and (all of the other libraries that come with it) go to File → Examples → Adafruit_ADXL375 → sensortest for more examples
+  #include <Wire.h>
+  #include <Adafruit_Sensor.h>
+  #include <Adafruit_ADXL375.h> // Install "Adafruit ADXL375" library and (all of the other libraries that come with it) go to File → Examples → Adafruit_ADXL375 → sensortest for more examples
 
-#define ADXL375_SCK 13
-#define ADXL375_MISO 12
-#define ADXL375_MOSI 11
-#define ADXL375_CS 10
+  #define ADXL375_SCK 13  //Define the serial clock
+  #define ADXL375_MISO 12 // Define the master in slave out data line
+  #define ADXL375_MOSI 11 // Define the slave out master in data line
+  #define ADXL375_CS 10   // Define the chip select
 
-// Assign a unique ID to this sensor at the same time 
-Adafruit_ADXL375 accel = Adafruit_ADXL375(12345);
+  // Assign a unique ID to this sensor at the same time 
+  Adafruit_ADXL375 accel = Adafruit_ADXL375(12345); // Assigning a unique ID to the ADXL375 for clarity and to avoid confusion if using multiple sensors 
 
-void displayDataRate(void) {
-  Serial.print  ("Data Rate:    ");
+  void displayDataRate(void) {
+    Serial.print  ("Data Rate:    ");
 
-  switch(accel.getDataRate())
-  {
-    case ADXL343_DATARATE_3200_HZ:
-      Serial.print  ("3200 ");
-      break;
-    case ADXL343_DATARATE_1600_HZ:
-      Serial.print  ("1600 ");
-      break;
-    case ADXL343_DATARATE_800_HZ:
-      Serial.print  ("800 ");
-      break;
-    case ADXL343_DATARATE_400_HZ:
-      Serial.print  ("400 ");
-      break;
-    case ADXL343_DATARATE_200_HZ:
-      Serial.print  ("200 ");
-      break;
-    case ADXL343_DATARATE_100_HZ:
-      Serial.print  ("100 ");
-      break;
-    case ADXL343_DATARATE_50_HZ:
-      Serial.print  ("50 ");
-      break;
-    case ADXL343_DATARATE_25_HZ:
-      Serial.print  ("25 ");
-      break;
-    case ADXL343_DATARATE_12_5_HZ:
-      Serial.print  ("12.5 ");
-      break;
-    case ADXL343_DATARATE_6_25HZ:
-      Serial.print  ("6.25 ");
-      break;
-    case ADXL343_DATARATE_3_13_HZ:
-      Serial.print  ("3.13 ");
-      break;
-    case ADXL343_DATARATE_1_56_HZ:
-      Serial.print  ("1.56 ");
-      break;
-    case ADXL343_DATARATE_0_78_HZ:
-      Serial.print  ("0.78 ");
-      break;
-    case ADXL343_DATARATE_0_39_HZ:
-      Serial.print  ("0.39 ");
-      break;
-    case ADXL343_DATARATE_0_20_HZ:
-      Serial.print  ("0.20 ");
-      break;
-    case ADXL343_DATARATE_0_10_HZ:
-      Serial.print  ("0.10 ");
-      break;
-    default:
-      Serial.print  ("???? ");
-      break;
+    switch(accel.getDataRate())
+    {
+      case ADXL343_DATARATE_3200_HZ:
+        Serial.print  ("3200 ");
+        break;
+      case ADXL343_DATARATE_1600_HZ:
+        Serial.print  ("1600 ");
+        break;
+      case ADXL343_DATARATE_800_HZ:
+        Serial.print  ("800 ");
+        break;
+      case ADXL343_DATARATE_400_HZ:
+        Serial.print  ("400 ");
+        break;
+      case ADXL343_DATARATE_200_HZ:
+        Serial.print  ("200 ");
+        break;
+      case ADXL343_DATARATE_100_HZ:
+        Serial.print  ("100 ");
+        break;
+      case ADXL343_DATARATE_50_HZ:
+        Serial.print  ("50 ");
+        break;
+      case ADXL343_DATARATE_25_HZ:
+        Serial.print  ("25 ");
+        break;
+      case ADXL343_DATARATE_12_5_HZ:
+        Serial.print  ("12.5 ");
+        break;
+      case ADXL343_DATARATE_6_25HZ:
+        Serial.print  ("6.25 ");
+        break;
+      case ADXL343_DATARATE_3_13_HZ:
+        Serial.print  ("3.13 ");
+        break;
+      case ADXL343_DATARATE_1_56_HZ:
+        Serial.print  ("1.56 ");
+        break;
+      case ADXL343_DATARATE_0_78_HZ:
+        Serial.print  ("0.78 ");
+        break;
+      case ADXL343_DATARATE_0_39_HZ:
+        Serial.print  ("0.39 ");
+        break;
+      case ADXL343_DATARATE_0_20_HZ:
+        Serial.print  ("0.20 ");
+        break;
+      case ADXL343_DATARATE_0_10_HZ:
+        Serial.print  ("0.10 ");
+        break;
+      default:
+        Serial.print  ("???? ");
+        break;
+    }
+    Serial.println(" Hz");
   }
-  Serial.println(" Hz");
-}
 
-// Notes:
-//  - FILL IN
-// MORE INFO -- https://www.adafruit.com/product/5374
+  // Notes:
+  //  - Measures up to 200 g's of force in X, Y, Z direction
+  //  - Here we are using SPI (Serial Peripheral Interface) communication protocol, but it can also use I2C (I will only describe SPI)
+  //    - SPI:
+  //      - SPI is a synchronous serial communication protocol, which means that it relies on a clock signal for synchronization
+  //      - Typically requires 4 wires (the ones defined above), to take data and select a certain chip, moved by the clock pulse
+  //          - SCK  (Serial Clock): Clock signal that synchronizes the data transmission between the master and the slave devices. 
+  //          - MOSI (Master Out Slave In): The data line through which the master sends data to the slave device. 
+  //          - MISO (Master In Slave Out): The data line through which the slave sends data to the master device. 
+  //          - CS   (Chip Select): The signal used to select a specific slave device.
+  // MORE INFO -- https://www.adafruit.com/product/5374
+  // WIRING    -- https://learn.adafruit.com/adafruit-adxl375/pinouts (Can use JST HS connectors instead of soldering)
 //-------------------------------------------------------------------------------------
 
+// Altimiter --------------------------------------------------------------------------
+  #include <Wire.h>
+  #include <SPI.h>
+  #include <Adafruit_Sensor.h>
+  #include "Adafruit_BMP3XX.h" // Install "Adafruit BMP3XX" library and (all of the other libraries that come with it) go to File → Examples → Adafruit_BMPXX → simpletest for more examples
 
+  #define BMP_SCK 13  // Define the serial clock
+  #define BMP_MISO 12 // Define the master in slave out data line
+  #define BMP_MOSI 11 // Define the slave out master in data line
+  #define BMP_CS 10   // Define the chip select
 
+  #define SEALEVELPRESSURE_HPA (1013.25) // This defines the standard atmospheric pressure at sea level in hPa (hectopascals), may have to change this at launch site. 
 
+  Adafruit_BMP3XX bmp; // Creating the instance "bmp" so it can be used with the library (this is a label for the sensor)
+
+  // Notes:
+  //  - This is a barometric altimiter, which means it uses the barometric formula and uses the change in barometric pressure to calculate its altutude. 
+  //  - Relative accuracy of 3 Pascals, which is about +/- 0.25 meters --> 0.82020997 feet
+  //  - For absolute height, will need to enter barometeric pressure at sea level (if weather changes) (part of the calibration process)
+  // MORE INFO -- https://learn.adafruit.com/adafruit-bmp388-bmp390-bmp3xx
+  // WIRING    -- https://learn.adafruit.com/adafruit-bmp388-bmp390-bmp3xx/pinouts
+  //      - **VERY IMPORTANT** Depending on I2C (simpler) or SPI wiring, it will change the setup in the code (there will be comments clarifying but make sure!)
+//-------------------------------------------------------------------------------------
 
 
 void setup() {
 //GPS SETUP -----------------------------------------------------------------------
-  // Connect at 115200 so we can read the GPS fast enough and echo without dropping chars
-  Serial.begin(115200); //VERY IMPORTANT
+  Serial.begin(115200); //VERY IMPORTANT - Connect at 115200 so we can read the GPS fast enough and echo without dropping chars
   delay(5000);
   Serial.println("Adafruit GPS library basic parsing test!");
 
@@ -184,6 +211,26 @@ void setup() {
   displayDataRate();
   Serial.println("");
 //----------------------------------------------------------------------------------
+
+//ALTIMITER SETUP ------------------------------------------------------------------
+  Serial.begin(115200);
+  while (!Serial);
+  Serial.println("Adafruit BMP388 / BMP390 test");
+
+  if (!bmp.begin_I2C()) {   // hardware I2C mode, can pass in address & alt Wire
+  //if (! bmp.begin_SPI(BMP_CS)) {  // hardware SPI mode  
+  //if (! bmp.begin_SPI(BMP_CS, BMP_SCK, BMP_MISO, BMP_MOSI)) {  // software SPI mode
+    Serial.println("Could not find a valid BMP3 sensor, check wiring!");
+    while (1);
+  }
+  // Set up oversampling and filter initialization
+  bmp.setTemperatureOversampling(BMP3_OVERSAMPLING_8X);
+  bmp.setPressureOversampling(BMP3_OVERSAMPLING_4X);
+  bmp.setIIRFilterCoeff(BMP3_IIR_FILTER_COEFF_3);
+  bmp.setOutputDataRate(BMP3_ODR_50_HZ);
+//----------------------------------------------------------------------------------
+
+
 }
 
 void loop() {
@@ -249,8 +296,27 @@ void gpsRead() { // Print all possible data given through RMC+GGA by using Softw
   }
 }
 
-void altRead() {
+void altRead() { // Prints temperature (F), pressure (hPa), altitude (ft). Temperature and altitude have been modified to fit imperial units.
+  if (! bmp.performReading()) {
+    Serial.println("Failed to perform reading :(");
+    return;
+  }
+  Serial.print("Temperature = ");
+  float fahr = (9/5) * bmp.temperature + 32;
+  Serial.print(fahr);
+  Serial.println(" *F");
 
+  Serial.print("Pressure = ");
+  Serial.print(bmp.pressure / 100.0);
+  Serial.println(" hPa");
+
+  Serial.print("Approx. Altitude = ");
+  float feet = bmp.readAltitude(SEALEVELPRESSURE_HPA) * 3.2808399;
+  Serial.print(feet);
+  Serial.println(" ft");
+
+  Serial.println();
+  delay(2000);
 }
 
 void accelRead() { // Print X, Y, Z accelerations in m/s^2
