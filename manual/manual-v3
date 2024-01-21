@@ -1,0 +1,93 @@
+#include <Servo.h>  
+
+//obj declration
+Servo ail_l; // left aileron
+Servo ail_r; //right aileron
+Servo elev_l; // left elevator
+Servo elev_r; //right elevator
+Servo rudd; // rudder
+
+//pins (change as needed)
+// Pin 4 to ch1
+// Pin 5 to ch2
+// Pin 6 to ch4
+// pin 6 to ch5
+// pin 9 to ail_l
+// pin 10 to ail_r
+// pin 11 to elev_l
+// pin 12 to elev_r
+// pin 13 to rudd
+// TX/RX PINS TO GPS
+// SDL/SCL PINS TO ALTIMETER
+
+//servo pos init 
+int pos_ail = 90; 
+int pos_elev = 90; 
+int pos_rudd = 90;
+
+//channel resolution
+int ch1; //ch1 to ailerons cntrl, 900left-1800right
+int ch2; //ch2 to elevators cntrl, 1170up-1950dowm
+int ch4; //ch4 to rudder cntrl right 1924 miud1500 left 1066
+int ch10; //ch10 to manual override switch,down 1925 up1066
+
+void setup() {
+  //servos
+  ail_l.attach(9); 
+  ail_r.attach(10); 
+  elev_l.attach(11); 
+  elev_r.attach(12);
+  rudd.attach(13);
+
+  //start at initial pos
+  // ail_l.write(pos_ail); ail_r.write(pos_ail);
+  // elev_l.write(pos_ail); elev_r.write(pos_ail);
+  // rudd.write(pos_rudd);
+
+  //channels
+  pinMode(4, INPUT); 
+  pinMode(5, INPUT); 
+  pinMode(6, INPUT); 
+  pinMode(7, INPUT); 
+
+  Serial.begin(9600); // Start serial communication
+}
+
+void loop() {
+  //get channel vals
+  ch1 = pulseIn(4, HIGH);
+  ch2 = pulseIn(5, HIGH);
+  ch4 = pulseIn(6, HIGH); 
+  ch10 = pulseIn(7, HIGH);
+ 
+  // if (ch10 <1200){ //MANUAL on
+
+  // }
+  //ailerons
+  if (ch1< 1350 && ch1 >1250){
+    pos_ail=90;
+  }
+  else{
+    pos_ail=map(ch1, 900, 1790, 70, 110);
+  }
+  ail_l.write(pos_ail); ail_r.write(pos_ail); 
+
+  //elevators
+  if (ch2< 1500 && ch2 >1450){
+    pos_elev=90;
+  }
+  else{
+    pos_elev=map(ch2, 1170, 1950, 70, 110);
+  }
+  elev_l.write(pos_elev); elev_r.write(pos_elev);  
+
+  //rudder
+   if (ch4< 1505 && ch4 >1460){
+    pos_rudd=90;
+  }
+  else{
+    pos_rudd=map(ch4, 1060, 1930, 70, 110);
+  }
+  rudd.write(pos_rudd); 
+
+}
