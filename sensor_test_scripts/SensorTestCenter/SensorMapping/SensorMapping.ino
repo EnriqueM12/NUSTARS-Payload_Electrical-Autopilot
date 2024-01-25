@@ -1,32 +1,7 @@
-//This script will be used to get the values from all of the sensors that we need so we know their optimal ranges for mapping. 
-//  Wire each of them idividually and take measurements of their maximum and minimum values. For the servo don't need to check since
-//  we are going to be mapping numbers 0 --> 1023 to 0 --> 179 (analogue values --> degrees).
+// This script will be used as a reference for the base code of every sensor. Information about them along with how I got them to work and what the results were 
+//  are under the notes and post testing notes of each sensor. The main goal is to get a good grasp of each of the sensors before starting to implement them all. 
 
-// Here is a list of all of the sensors' mapping ranges we should get familiar with: 
-//    - Servo
-//        - MAX:      179
-//        - NEUTRAL:  90
-//        - MIN:      0
-//    - Absolute Orientation Sensor
-//        - MAX:
-//        - NEUTRAL:
-//        - MIN:
-//    - Accelerometer
-//        - MAX:
-//        - NEUTRAL:
-//        - MIN:
-//    - Current Sensor
-//        - MAX:
-//        - NEUTRAL:
-//        - MIN:
-//    - GPS
-//        - MAX:
-//        - NEUTRAL:
-//        - MIN:
-//    - Altimiter
-//        - MAX:
-//        - NEUTRAL:
-//        - MIN:
+// Use the interpolate data to smooth out the curve when viewing in serial plotter.
 
 // COMMENT OUT THE OTHERS WHEN TESTING WITH /* -> */ (comment out each of the collapsed sections, it will make it easier)
 
@@ -155,11 +130,6 @@
   #include <Adafruit_Sensor.h>
   #include "Adafruit_BMP3XX.h" // Install "Adafruit BMP3XX" library and (all of the other libraries that come with it) go to File → Examples → Adafruit_BMPXX → simpletest for more examples
 
-  #define BMP_SCK 13  // Define the serial clock
-  #define BMP_MISO 12 // Define the master in slave out data line
-  #define BMP_MOSI 11 // Define the slave out master in data line
-  #define BMP_CS 10   // Define the chip select
-
   #define SEALEVELPRESSURE_HPA (1013.25) // This defines the standard atmospheric pressure at sea level in hPa (hectopascals), may have to change this at launch site. 
 
   Adafruit_BMP3XX bmp; // Creating the instance "bmp" so it can be used with the library (this is a label for the sensor)
@@ -168,9 +138,15 @@
   //  - This is a barometric altimiter, which means it uses the barometric formula and uses the change in barometric pressure to calculate its altutude. 
   //  - Relative accuracy of 3 Pascals, which is about +/- 0.25 meters --> 0.82020997 feet
   //  - For absolute height, will need to enter barometeric pressure at sea level (if weather changes) (part of the calibration process)
+  // Post Testing Notes:
+  //  - The test I conducted uses the I2C protocol by connecting SCL to pin 19 and SDA to pin 18 of the Teensy 4.1 (and GND/VIN (5V))
+  //  - Do not need to define any of the pins for the wires and can go straight into bmp.begin_I2C() with no inputs (we can input if we are using multiple sensors on the same I2C dataline)
+  //  - In order to see in the serial plotter properly, we can do a series of print statements to 'bound' the output between a max and min by doing Serial.print(min); Serial.print(", "); Serial.print(max); Serial.print(", "); Serial.print(data);
+  //  - In the NUSTARS basement it was at around 400ish ft with excellent precision, we can subtract all our data by a given amount based on on site testing to zero the data.
+  //  - Since the altimiter uses data from barometer, it is important to keep it isolated from the breeze or any fast winds as it could mess up the readings (try blowing on it it will fluctuate a decent amount). 
   // MORE INFO -- https://learn.adafruit.com/adafruit-bmp388-bmp390-bmp3xx
   // WIRING    -- https://learn.adafruit.com/adafruit-bmp388-bmp390-bmp3xx/pinouts
-  //      - **VERY IMPORTANT** Depending on I2C (simpler) or SPI wiring, it will change the setup in the code (there will be comments clarifying but make sure!)
+  //      - **VERY IMPORTANT** As of right now (1/25/24) we are using the I2C protocol for this sensor.
 //-------------------------------------------------------------------------------------
 
 // Absolute Orientation Sensor --------------------------------------------------------
@@ -261,7 +237,7 @@ void setup() {
   while (!Serial);
   Serial.println("Adafruit BMP388 / BMP390 test");
 
-  if (!bmp.begin_I2C()) {   // hardware I2C mode, can pass in address & alt Wire
+  if (!bmp.begin_I2C()) {   // Just run it like this for now
   //if (! bmp.begin_SPI(BMP_CS)) {  // hardware SPI mode  
   //if (! bmp.begin_SPI(BMP_CS, BMP_SCK, BMP_MISO, BMP_MOSI)) {  // software SPI mode
     Serial.println("Could not find a valid BMP3 sensor, check wiring!");
@@ -376,7 +352,7 @@ void altRead() { // Prints temperature (F), pressure (hPa), altitude (ft). Tempe
   Serial.println(" ft");
 
   Serial.println();
-  delay(2000);
+  delay(100); // data every 0.1s 
 }
 
 void accelRead() { // Print X, Y, Z accelerations in m/s^2
