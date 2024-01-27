@@ -33,8 +33,14 @@
   //    - GGA (Global Positioning System Fix Data)
   //        - Number of satellites in view, GPS fix quality, altitude, geodial separation, horizontal dilution of precision (HDOP) (calultates the potential error in horizontal position)
   //  - I am choosing RMC+GGA for our tests and will output all possible data
+  //  - The EN pin is an enable pin, it can turn the GPS on or off
+  //  - GPS uses the UART Protocol (Universal Asynchronous Receiver-Transmitter):
+  //    - TX: Transmitting data
+  //    - RX: Recieving data
+  //  - MUST CONNECT TO PIN 7 (RX) AND 8 (TX) WITH TEENSY!!
   // MORE INFO -- https://learn.adafruit.com/adafruit-ultimate-gps/parsed-data-output
   // WIRING    -- https://learn.adafruit.com/adafruit-ultimate-gps/arduino-wiring
+  // ANTENNA (WILL NEED) -- https://learn.adafruit.com/adafruit-ultimate-gps/external-antenna
 //-------------------------------------------------------------------------------------
 
 // Accelerometer ----------------------------------------------------------------------
@@ -120,8 +126,19 @@
   //          - MOSI (Master Out Slave In): The data line through which the master sends data to the slave device. 
   //          - MISO (Master In Slave Out): The data line through which the slave sends data to the master device. 
   //          - CS   (Chip Select): The signal used to select a specific slave device.
+  //  Post Testing:
+  //  - Using the I2C protocol everything runs smoothly
+  //  - With the on LED on the top left:
+  //    - Horizontal motion is X
+  //    - Vertical motion is Y
+  //    - Upwards/lifting motion is Z
+  //  - This is very important data to determine the success of the mission, so will need to conduct tests saving this data so SD card with Teensy. 
+  //  - Connected Black to GND, Red to 5V, SCL (Yellow) to 19, and SDA (Blue) to 18
+  //  - To plot, use the same printing method as found in other sensors: Serial.print(min); Serial.print(", "); Serial.print(max); Serial.print(", "); Serial.println(data);
   // MORE INFO -- https://www.adafruit.com/product/5374
-  // WIRING    -- https://learn.adafruit.com/adafruit-adxl375/pinouts (Can use JST HS connectors instead of soldering)
+  // WIRING    -- https://learn.adafruit.com/adafruit-adxl375/arduino (Can use JST HS connectors instead of soldering)
+  //      - **VERY IMPORTANT** As of right now (1/27/24) we are using the I2C protocol for this sensor.
+
 //-------------------------------------------------------------------------------------
 
 // Altimiter --------------------------------------------------------------------------
@@ -141,7 +158,7 @@
   // Post Testing Notes:
   //  - The test I conducted uses the I2C protocol by connecting SCL to pin 19 and SDA to pin 18 of the Teensy 4.1 (and GND/VIN (5V))
   //  - Do not need to define any of the pins for the wires and can go straight into bmp.begin_I2C() with no inputs (we can input if we are using multiple sensors on the same I2C dataline)
-  //  - In order to see in the serial plotter properly, we can do a series of print statements to 'bound' the output between a max and min by doing Serial.print(min); Serial.print(", "); Serial.print(max); Serial.print(", "); Serial.print(data);
+  //  - In order to see in the serial plotter properly, we can do a series of print statements to 'bound' the output between a max and min by doing Serial.print(min); Serial.print(", "); Serial.print(max); Serial.print(", "); Serial.println(data);
   //  - In the NUSTARS basement it was at around 400ish ft with excellent precision, we can subtract all our data by a given amount based on on site testing to zero the data.
   //  - Since the altimiter uses data from barometer, it is important to keep it isolated from the breeze or any fast winds as it could mess up the readings (try blowing on it it will fluctuate a decent amount). 
   // MORE INFO -- https://learn.adafruit.com/adafruit-bmp388-bmp390-bmp3xx
@@ -219,8 +236,7 @@
       Display sensor calibration status
   */
   /**************************************************************************/
-  void displayCalStatus(void)
-  {
+  void displayCalStatus(void) {
     /* Get the four calibration values (0..3) */
     /* Any sensor data reporting 0 should be ignored, */
     /* 3 means 'fully calibrated" */
