@@ -1,11 +1,13 @@
-// This script will be used as a reference for the base code of every sensor. Information about them along with how I got them to work and what the results were 
-//  are under the notes and post testing notes of each sensor. The main goal is to get a good grasp of each of the sensors before starting to implement them all. 
+/* 
+- This script will be used as a reference for the base code of every sensor. Information about them along with how I got them to work and what the results were 
+    are under the notes and post testing notes of each sensor. The main goal is to get a good grasp of each of the sensors before starting to implement them all. 
 
-// Use the interpolate data to smooth out the curve when viewing in serial plotter.
+ - Use the interpolate data to smooth out the curve when viewing in serial plotter.
 
-// DO NOT USE THIS CODE TO RUN THE SENSORS, USE IT AS A REFERENCE AND LOOK AT THE EXAMPLES FOR UPLOADING IT INSTEAD 
+ - DO NOT USE THIS CODE TO RUN THE SENSORS, USE IT AS A REFERENCE AND LOOK AT THE EXAMPLES FOR UPLOADING IT INSTEAD 
 
-// look at -- how to get live serial chart, any modifications to serial.print?
+ - look at -- how to get live serial chart, any modifications to serial.print?    
+ */
 
 // GPS ------------------------------------------------------------------------------
   #include <Adafruit_GPS.h> //Install "Adafruit_GPS" library and go to File → Examples → Adafruit_GPS → GPS_HardwareSerial_Parsing or GPS_SoftwareSerial_Parsing for more examples
@@ -26,21 +28,21 @@
 
   uint32_t timer = millis(); // To keep track of time
 
-  // Notes:
-  //  - Serial baud rate must be 115200 so we can read the GPS fast enough and echo without dropping chars, set GPS.begin(9600) which is the default standard for NMEA (National Marine Electronics Association)
-  //    - RMC (Recommended Minimum Navigation Information)
-  //        - Time, date, latitude, longitude, speed over ground (knots), course over ground (degrees), magnetic variation (E or W), Hemisphere indicator for latitude (N or S)
-  //    - GGA (Global Positioning System Fix Data)
-  //        - Number of satellites in view, GPS fix quality, altitude, geodial separation, horizontal dilution of precision (HDOP) (calultates the potential error in horizontal position)
-  //  - I am choosing RMC+GGA for our tests and will output all possible data
-  //  - The EN pin is an enable pin, it can turn the GPS on or off
-  //  - GPS uses the UART Protocol (Universal Asynchronous Receiver-Transmitter):
-  //    - TX: Transmitting data
-  //    - RX: Recieving data
-  //  - MUST CONNECT TO PIN 7 (RX) AND 8 (TX) WITH TEENSY!!
-  // MORE INFO -- https://learn.adafruit.com/adafruit-ultimate-gps/parsed-data-output
-  // WIRING    -- https://learn.adafruit.com/adafruit-ultimate-gps/arduino-wiring
-  // ANTENNA (WILL NEED) -- https://learn.adafruit.com/adafruit-ultimate-gps/external-antenna
+  /* Notes:
+   - Serial baud rate must be 115200 so we can read the GPS fast enough and echo without dropping chars, set GPS.begin(9600) which is the default standard for NMEA (National Marine Electronics Association)
+     - RMC (Recommended Minimum Navigation Information)
+         - Time, date, latitude, longitude, speed over ground (knots), course over ground (degrees), magnetic variation (E or W), Hemisphere indicator for latitude (N or S)
+     - GGA (Global Positioning System Fix Data)
+         - Number of satellites in view, GPS fix quality, altitude, geodial separation, horizontal dilution of precision (HDOP) (calultates the potential error in horizontal position)
+   - I am choosing RMC+GGA for our tests and will output all possible data
+   - The EN pin is an enable pin, it can turn the GPS on or off
+   - GPS uses the UART Protocol (Universal Asynchronous Receiver-Transmitter):
+     - TX: Transmitting data
+     - RX: Recieving data
+   - MUST CONNECT TO PIN 7 (RX) AND 8 (TX) WITH TEENSY!!
+   MORE INFO -- https://learn.adafruit.com/adafruit-ultimate-gps/parsed-data-output
+   WIRING    -- https://learn.adafruit.com/adafruit-ultimate-gps/arduino-wiring
+   ANTENNA (WILL NEED) -- https://learn.adafruit.com/adafruit-ultimate-gps/external-antenna     */
 //-------------------------------------------------------------------------------------
 
 // Accelerometer ----------------------------------------------------------------------
@@ -116,28 +118,28 @@
     Serial.println(" Hz");
   }
 
-  // Notes:
-  //  - Measures up to 200 g's of force in X, Y, Z direction
-  //  - Here we are using SPI (Serial Peripheral Interface) communication protocol, but it can also use I2C (I will only describe SPI)
-  //    - SPI:
-  //      - SPI is a synchronous serial communication protocol, which means that it relies on a clock signal for synchronization
-  //      - Typically requires 4 wires (the ones defined above), to take data and select a certain chip, moved by the clock pulse
-  //          - SCK  (Serial Clock): Clock signal that synchronizes the data transmission between the master and the slave devices. 
-  //          - MOSI (Master Out Slave In): The data line through which the master sends data to the slave device. 
-  //          - MISO (Master In Slave Out): The data line through which the slave sends data to the master device. 
-  //          - CS   (Chip Select): The signal used to select a specific slave device.
-  //  Post Testing:
-  //  - Using the I2C protocol everything runs smoothly
-  //  - With the on LED on the top left:
-  //    - Horizontal motion is X
-  //    - Vertical motion is Y
-  //    - Upwards/lifting motion is Z
-  //  - This is very important data to determine the success of the mission, so will need to conduct tests saving this data so SD card with Teensy. 
-  //  - Connected Black to GND, Red to 5V, SCL (Yellow) to 19, and SDA (Blue) to 18
-  //  - To plot, use the same printing method as found in other sensors: Serial.print(min); Serial.print(", "); Serial.print(max); Serial.print(", "); Serial.println(data);
-  // MORE INFO -- https://www.adafruit.com/product/5374
-  // WIRING    -- https://learn.adafruit.com/adafruit-adxl375/arduino (Can use JST HS connectors instead of soldering)
-  //      - **VERY IMPORTANT** As of right now (1/27/24) we are using the I2C protocol for this sensor.
+  /* Notes:
+    - Measures up to 200 g's of force in X, Y, Z direction
+    - Here we are using SPI (Serial Peripheral Interface) communication protocol, but it can also use I2C (I will only describe SPI)
+      - SPI:
+        - SPI is a synchronous serial communication protocol, which means that it relies on a clock signal for synchronization
+        - Typically requires 4 wires (the ones defined above), to take data and select a certain chip, moved by the clock pulse
+            - SCK  (Serial Clock): Clock signal that synchronizes the data transmission between the master and the slave devices. 
+            - MOSI (Master Out Slave In): The data line through which the master sends data to the slave device. 
+            - MISO (Master In Slave Out): The data line through which the slave sends data to the master device. 
+            - CS   (Chip Select): The signal used to select a specific slave device.
+    Post Testing:
+    - Using the I2C protocol everything runs smoothly
+    - With the on LED on the top left:
+      - Horizontal motion is X
+      - Vertical motion is Y
+      - Upwards/lifting motion is Z
+    - This is very important data to determine the success of the mission, so will need to conduct tests saving this data so SD card with Teensy. 
+    - Connected Black to GND, Red to 5V, SCL (Yellow) to 19, and SDA (Blue) to 18
+    - To plot, use the same printing method as found in other sensors: Serial.print(min); Serial.print(", "); Serial.print(max); Serial.print(", "); Serial.println(data);
+   MORE INFO -- https://www.adafruit.com/product/5374
+   WIRING    -- https://learn.adafruit.com/adafruit-adxl375/arduino (Can use JST HS connectors instead of soldering)
+        - **VERY IMPORTANT** As of right now (1/27/24) we are using the I2C protocol for this sensor.     */
 
 //-------------------------------------------------------------------------------------
 
@@ -151,19 +153,19 @@
 
   Adafruit_BMP3XX bmp; // Creating the instance "bmp" so it can be used with the library (this is a label for the sensor)
 
-  // Notes:
-  //  - This is a barometric altimiter, which means it uses the barometric formula and uses the change in barometric pressure to calculate its altutude. 
-  //  - Relative accuracy of 3 Pascals, which is about +/- 0.25 meters --> 0.82020997 feet
-  //  - For absolute height, will need to enter barometeric pressure at sea level (if weather changes) (part of the calibration process)
-  // Post Testing Notes:
-  //  - The test I conducted uses the I2C protocol by connecting SCL to pin 19 and SDA to pin 18 of the Teensy 4.1 (and GND/VIN (5V))
-  //  - Do not need to define any of the pins for the wires and can go straight into bmp.begin_I2C() with no inputs (we can input if we are using multiple sensors on the same I2C dataline)
-  //  - In order to see in the serial plotter properly, we can do a series of print statements to 'bound' the output between a max and min by doing Serial.print(min); Serial.print(", "); Serial.print(max); Serial.print(", "); Serial.println(data);
-  //  - In the NUSTARS basement it was at around 400ish ft with excellent precision, we can subtract all our data by a given amount based on on site testing to zero the data.
-  //  - Since the altimiter uses data from barometer, it is important to keep it isolated from the breeze or any fast winds as it could mess up the readings (try blowing on it it will fluctuate a decent amount). 
-  // MORE INFO -- https://learn.adafruit.com/adafruit-bmp388-bmp390-bmp3xx
-  // WIRING    -- https://learn.adafruit.com/adafruit-bmp388-bmp390-bmp3xx/pinouts
-  //      - **VERY IMPORTANT** As of right now (1/25/24) we are using the I2C protocol for this sensor.
+  /* Notes:
+    - This is a barometric altimiter, which means it uses the barometric formula and uses the change in barometric pressure to calculate its altutude. 
+    - Relative accuracy of 3 Pascals, which is about +/- 0.25 meters --> 0.82020997 feet
+    - For absolute height, will need to enter barometeric pressure at sea level (if weather changes) (part of the calibration process)
+   Post Testing Notes:
+    - The test I conducted uses the I2C protocol by connecting SCL to pin 19 and SDA to pin 18 of the Teensy 4.1 (and GND/VIN (5V))
+    - Do not need to define any of the pins for the wires and can go straight into bmp.begin_I2C() with no inputs (we can input if we are using multiple sensors on the same I2C dataline)
+    - In order to see in the serial plotter properly, we can do a series of print statements to 'bound' the output between a max and min by doing Serial.print(min); Serial.print(", "); Serial.print(max); Serial.print(", "); Serial.println(data);
+    - In the NUSTARS basement it was at around 400ish ft with excellent precision, we can subtract all our data by a given amount based on on site testing to zero the data.
+    - Since the altimiter uses data from barometer, it is important to keep it isolated from the breeze or any fast winds as it could mess up the readings (try blowing on it it will fluctuate a decent amount). 
+   MORE INFO -- https://learn.adafruit.com/adafruit-bmp388-bmp390-bmp3xx
+   WIRING    -- https://learn.adafruit.com/adafruit-bmp388-bmp390-bmp3xx/pinouts
+        - **VERY IMPORTANT** As of right now (1/25/24) we are using the I2C protocol for this sensor.     */
 //-------------------------------------------------------------------------------------
 
 // Absolute Orientation Sensor --------------------------------------------------------
@@ -262,32 +264,33 @@
     Serial.print(mag, DEC);
   }
 
-  //                                                          
-  // Notes:
-  //  - This is a 9-D0F (9 Degree of Freedom) sensor, which means it has a 3-DOF accelerometer, gyrosocpe, and magnetometer 
-  //  - Data Outputs:
-  //     - Absolute Orientation (Euler Vector or Quaternion 100Hz)
-  //     - Angular Velocity Vector (100Hz)
-  //     - Acceleration Vector (100Hz)
-  //     - Magnetic Field Strength Vector (20Hz)
-  //     - Linear Acceleration Vector (100Hz)
-  //     - Gravity Vector (100Hz)
-  //     - Temperature (1Hz)
-  //  - The sensor includes an on-chip sensor fusion algoritm, which uses data from the accelerometer, gyroscope, and magnetometer to provide accurate orientation information. 
-  //  - Uses I2C and UART (Universal Asynchronous Reciever-Transmitter) interfaces
-  //  - Does have an on-chip calibration algorithm
-  //  - Contains a voltage level shifter, so it can work with 3.3 and 5V
-  // Post Testing Notes:
-  //  - Using the onboard algorithm that takes the raw data an computes in on board instead of in software. I am using the I2C protocol for this, connecting
-  //      the SCL to pin 19 and SDA to pin 18 (along with VIN (5V) and GND)
-  //  - X direction is yaw (0 to 360 degrees)
-  //  - Y direction is pitch (-90 to 90 degrees)
-  //  - Z direction is roll (-90 to 90 degrees)
-  //  - Samplilng produces no noise in the post-processed data (this shows up to 4 decimal places)
-  // MORE INFO -- https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/overview
-  // WIRING    -- https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/pinouts
-  // PDF (VERY GOOD) -- https://cdn-learn.adafruit.com/downloads/pdf/adafruit-bno055-absolute-orientation-sensor.pdf
-  //      - **VERY IMPORTANT** As of right now (1/26/24) we are using the I2C protocol for this sensor.
+                                                            
+  /* Notes:
+    - This is a 9-D0F (9 Degree of Freedom) sensor, which means it has a 3-DOF accelerometer, gyrosocpe, and magnetometer 
+    - Data Outputs:
+       - Absolute Orientation (Euler Vector or Quaternion 100Hz)
+       - Angular Velocity Vector (100Hz)
+       - Acceleration Vector (100Hz)
+       - Magnetic Field Strength Vector (20Hz)
+       - Linear Acceleration Vector (100Hz)
+       - Gravity Vector (100Hz)
+       - Temperature (1Hz)
+    - The sensor includes an on-chip sensor fusion algoritm, which uses data from the accelerometer, gyroscope, and magnetometer to provide accurate orientation information. 
+    - Uses I2C and UART (Universal Asynchronous Reciever-Transmitter) interfaces
+    - Does have an on-chip calibration algorithm
+    - Contains a voltage level shifter, so it can work with 3.3 and 5V
+   Post Testing Notes:
+    - Using the onboard algorithm that takes the raw data an computes in on board instead of in software. I am using the I2C protocol for this, connecting
+        the SCL to pin 19 and SDA to pin 18 (along with VIN (5V) and GND)
+    - X direction is yaw (0 to 360 degrees)
+    - Y direction is pitch (-90 to 90 degrees)
+    - Z direction is roll (-90 to 90 degrees)
+    - Once it reaches the max, it loops back to 0, watch out at this can cause servo snapping. To fix this look at the ServoAOS_Test_1 script for more details.
+    - Samplilng produces no noise in the post-processed data (this shows up to 4 decimal places)
+   MORE INFO -- https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/overview
+   WIRING    -- https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/pinouts
+   PDF (VERY GOOD) -- https://cdn-learn.adafruit.com/downloads/pdf/adafruit-bno055-absolute-orientation-sensor.pdf
+        - **VERY IMPORTANT** As of right now (1/26/24) we are using the I2C protocol for this sensor.           */
 //-------------------------------------------------------------------------------------
 
 void setup() {
