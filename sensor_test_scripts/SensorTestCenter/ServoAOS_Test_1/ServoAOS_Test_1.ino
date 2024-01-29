@@ -12,7 +12,7 @@
 int angle;
 
 Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28, &Wire);
-Servo myServo;
+Servo myServo; 
 int pos = 0; //initial posistion for servo
 
 void setup() {
