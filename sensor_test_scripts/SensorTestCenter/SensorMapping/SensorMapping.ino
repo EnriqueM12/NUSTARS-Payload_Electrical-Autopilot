@@ -46,7 +46,7 @@
 //-------------------------------------------------------------------------------------
 
 // Accelerometer ----------------------------------------------------------------------
-  #include <Wire.h>
+  #include <Wire.h> 
   #include <Adafruit_Sensor.h>
   #include <Adafruit_ADXL375.h> // Install "Adafruit ADXL375" library and (all of the other libraries that come with it) go to File → Examples → Adafruit_ADXL375 → sensortest for more examples
 
@@ -156,7 +156,7 @@
     - Relative accuracy of 3 Pascals, which is about +/- 0.25 meters --> 0.82020997 feet
     - For absolute height, will need to enter barometeric pressure at sea level (if weather changes) (part of the calibration process)
    Post Testing Notes:
-    - The test I conducted uses the I2C protocol by connecting SCL to pin 19 and SDA to pin 18 of the Teensy 4.1 (and GND/VIN (5V))
+    - The test I conducted uses the I2C protocol by connecting SCL to pin 19 (Yellow) and SDA to pin 18 (Blue) of the Teensy 4.1 (and GND/VIN (5V))
     - Do not need to define any of the pins for the wires and can go straight into bmp.begin_I2C() with no inputs (we can input if we are using multiple sensors on the same I2C dataline)
     - In order to see in the serial plotter properly, we can do a series of print statements to 'bound' the output between a max and min by doing Serial.print(min); Serial.print(", "); Serial.print(max); Serial.print(", "); Serial.println(data);
     - In the NUSTARS basement it was at around 400ish ft with excellent precision, we can subtract all our data by a given amount based on on site testing to zero the data.
@@ -279,7 +279,7 @@
     - Contains a voltage level shifter, so it can work with 3.3 and 5V
    Post Testing Notes:
     - Using the onboard algorithm that takes the raw data an computes in on board instead of in software. I am using the I2C protocol for this, connecting
-        the SCL to pin 19 and SDA to pin 18 (along with VIN (5V) and GND)
+        the SCL to pin 19 (Yellow) and SDA to pin 18 (Blue) (along with VIN (5V) and GND)
     - X direction is yaw (0 to 360 degrees)
     - Y direction is pitch (-90 to 90 degrees)
     - Z direction is roll (-90 to 90 degrees)
