@@ -50,11 +50,6 @@
   #include <Adafruit_Sensor.h>
   #include <Adafruit_ADXL375.h> // Install "Adafruit ADXL375" library and (all of the other libraries that come with it) go to File → Examples → Adafruit_ADXL375 → sensortest for more examples
 
-  #define ADXL375_SCK 13  //Define the serial clock
-  #define ADXL375_MISO 12 // Define the master in slave out data line
-  #define ADXL375_MOSI 11 // Define the slave out master in data line
-  #define ADXL375_CS 10   // Define the chip select
-
   // Assign a unique ID to this sensor at the same time 
   Adafruit_ADXL375 accel = Adafruit_ADXL375(12345); // Assigning a unique ID to the ADXL375 for clarity and to avoid confusion if using multiple sensors 
 
@@ -120,6 +115,8 @@
 
   /* Notes:
     - Measures up to 200 g's of force in X, Y, Z direction
+
+    - WE ARE NO LONGER USING SPI, I WILL LEAVE THE NOTES IF CURIOUS!!!
     - Here we are using SPI (Serial Peripheral Interface) communication protocol, but it can also use I2C (I will only describe SPI)
       - SPI:
         - SPI is a synchronous serial communication protocol, which means that it relies on a clock signal for synchronization
@@ -128,6 +125,7 @@
             - MOSI (Master Out Slave In): The data line through which the master sends data to the slave device. 
             - MISO (Master In Slave Out): The data line through which the slave sends data to the master device. 
             - CS   (Chip Select): The signal used to select a specific slave device.
+    
     Post Testing:
     - Using the I2C protocol everything runs smoothly
     - With the on LED on the top left:
@@ -311,7 +309,7 @@ void setup() {
   // Request updates on antenna status, comment out to keep quiet
   GPS.sendCommand(PGCMD_ANTENNA);
 
-  delay(1000);
+  delay(1000); }
 //-----------------------------------------------------------------------------------
 
 //ACCELEROMETER SETUP --------------------------------------------------------------
@@ -377,7 +375,7 @@ void setup() {
   bno.setExtCrystalUse(true);
 //-----------------------------------------------------------------------------------
 
-}
+
 
 void loop() {
   //gpsRead();
