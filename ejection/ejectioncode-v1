@@ -1,0 +1,79 @@
+#include <Servo.h>  
+
+// altimeter
+#include <"Adafruit_BMP3XX.h>
+#define BMP_SCK 13  // Define the serial clock
+#define BMP_MISO 12 // Define the master in slave out data line
+#define BMP_MOSI 11 // Define the slave out master in data line
+#define BMP_CS 10   // Define the chip select
+#define SEALEVELPRESSURE_HPA (1013.25) // This defines the standard atmospheric pressure at sea level in hPa (hectopascals), may have to change this at launch site.
+
+Servo servo;
+//channel resolution
+int ch1; //ch1 to arming
+int ch2; //ch2 to ejectrion failsafe
+
+//pins (change as needed)
+// Pin 4 to ch1
+// Pin 5 to ch2
+//pin 9 to servo
+float alt;
+
+void setup() {
+  servo.attach(9); 
+  
+  //channels
+  pinMode(4, INPUT); 
+  pinMode(5, INPUT); 
+  
+  Serial.begin(115200);
+
+    if (!bmp.begin_I2C()) {   // hardware I2C mode, can pass in address & alt Wire
+      Serial.println("No BMP3 detected");
+      while (1);
+    }
+    // Set up oversampling and filter initialization
+    // bmp.setTemperatureOversampling(BMP3_OVERSAMPLING_8X);
+    // bmp.setPressureOversampling(BMP3_OVERSAMPLING_4X);
+    bmp.setIIRFilterCoeff(BMP3_IIR_FILTER_COEFF_3);
+    bmp.setOutputDataRate(BMP3_ODR_50_HZ);
+}
+
+void loop() {
+  servo.write(0); //intial pos
+
+  ch1 = pulseIn(4, HIGH);
+  ch2 = pulseIn(5, HIGH);
+
+  while (ch1>3000){ //ejection armming switch HIGH (DOUBLE CHECK VALS)
+    alt=altRead();
+    if (alt < 400){
+      servo.write(90); //move servo, eject payload
+    }
+
+    if (ch2>3000) { //manual ejection siwtch HIGH
+      servo.write(90);
+    }
+  }
+  // put your main code here, to run repeatedly:
+  //arming single when flirp switch
+  // move servo when altiude deetchs 400ft
+  // flip swrich to move servo
+  //curretn sesnor for servo stall
+
+}
+
+float altRead() { 
+  if (! bmp.performReading()) {
+    Serial.println("Failed to perform reading :(");
+    return;
+  }
+
+  // Sensor altitude reading 
+  Serial.print("Approx. Altitude = ");
+  float alt = bmp.readAltitude(SEALEVELPRESSURE_HPA) * 3.2808399; // read altitude and convert meters to feet
+  Serial.print(alt);
+  Serial.println(" ft");
+
+  return alt
+}
