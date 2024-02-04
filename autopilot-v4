@@ -69,6 +69,12 @@ int ch5; //ch5 to manual override switch assuming channel 5 is 2 way switch
 
 // sensor vals
 float altitude;
+float accel_x;
+float accel_y;
+float accel_z;
+float orient_x;
+float orient_y;
+float orient_z;
 
 void setup() {
     //servos
@@ -147,7 +153,7 @@ void loop() {
       orientRead();
 
       // if accel in z direction is > than some amt, run swoop
-  
+
       //
 
     }
@@ -175,9 +181,9 @@ void accelRead() {
   sensors_event_t eventACCEL;
   accel.getEvent(&eventACCEL);
 
-  float accel_x = eventACCEL.acceleration.x;
-  float accel_y = eventACCEL.acceleration.y;
-  float accel_z = eventACCEL.acceleration.z;
+  accel_x = eventACCEL.acceleration.x;
+  accel_y = eventACCEL.acceleration.y;
+  accel_z = eventACCEL.acceleration.z;
 
   // Display the results (acceleration is measured in m/s^2 and is already converted into those units by the library)
   Serial.print("X: "); Serial.print(accel_x); Serial.print("  ");
@@ -195,9 +201,9 @@ void orientRead(){
   sensors_event_t eventAOS;
   bno.getEvent(&eventAOS);
   
-  float orient_x = eventAOS.orientation.x;
-  float orient_y = eventAOS.orientation.y;
-  float orient_z = eventAOS.orientation.z;
+  orient_x = eventAOS.orientation.x;
+  orient_y = eventAOS.orientation.y;
+  orient_z = eventAOS.orientation.z;
 
   //display
   Serial.print("X: "); Serial.print(orient_x, 4); // The 4 stands for 4 decimal places
@@ -205,4 +211,14 @@ void orientRead(){
   Serial.print("\tZ: "); Serial.println(orient_z, 4);
 
   return 
+}
+
+void Swoop(){
+  //while orient Y is < the stall angle
+  //increase elevator angle 
+}
+
+void Stable(){
+  //if orient Z is off
+  //adjust rudder until orient z is at 0
 }
