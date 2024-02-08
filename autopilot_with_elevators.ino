@@ -137,7 +137,7 @@ float nominal_o_z(float alti) {
 }
 
 // get a new ideal angle for the elevators to approach nominal pitch
-int requred_elev_pos(float current_pitch, float desired_pitch) {
+int required_elev_pos(float current_pitch, float desired_pitch) {
     float delta_pitch = desired_pitch - current_pitch;
     float new_pos = 0; // plug delta pitch into some function to get how much we need to move elevators
     if (new_pos > 170) { 
