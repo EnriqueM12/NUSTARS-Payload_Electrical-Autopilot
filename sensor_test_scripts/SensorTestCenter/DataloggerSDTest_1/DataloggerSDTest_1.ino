@@ -21,7 +21,7 @@ bool onlyOnce;  // To display the "Done" message only once
 
 void setup()
 {
-  Serial.begin(115200);
+  Serial.begin(115200); 
 
   onlyOnce = false;
   //SD.remove("datalogSDTest.txt"); // My attempt to remove the text file, could use more testing but not necessary. Clear manually
