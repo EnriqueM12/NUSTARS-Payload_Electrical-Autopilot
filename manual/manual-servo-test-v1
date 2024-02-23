@@ -1,0 +1,69 @@
+#include <Servo.h>  
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+
+/*
+  - 1:Ailerons inverted - 2:Elevator inerted - 3:Throttle - 4:Rudder - 5: Ejection (Swtich C) - 6: Autopilot/Manual (Switch B) (Up - safe // Down - manual)
+  - Servos will be powered by the R12DS and signal wire all connected to the teensy pins
+  - They have to be PWM pins and non I2C pins
+  - This should also log data
+*/
+
+//obj declration
+Servo ailLeft; 
+Servo ailRight; 
+Servo elevatorLeft;
+Servo elevatorRight;
+Servo rudder;
+Servo ejectServo;
+
+
+//channel resolution
+int chAileronLeftRight; //ch1 to aileron R cntrl, 900left-1800right
+int chElevator;
+int chRudder; 
+
+
+void setup() {
+
+  Serial.begin (115200);
+
+
+  // attach servos to pins
+  ailLeft.attach(9);
+  ailRight.attach(10);
+  elevatorLeft.attach(11);
+  elevatorRight.attach(12);
+  rudder.attach(24);
+}
+
+void loop() {
+
+  // this is corresponding reciever pin to teensy pin 
+  chAileronLeftRight = pulseIn(4, HIGH);
+  chElevator = pulseIn(5, HIGH);
+  chRudder = pulseIn(6, HIGH);
+
+  
+  // data logging (if wired correctly)
+  Serial.print("Channel-AileronLeftRight: "); Serial.print(chAileronLeftRight); Serial.print("    ");
+  Serial.print("||  Channel-Elevator: "); Serial.print(chElevator); Serial.print("    ");
+  Serial.print("||  Channel-Rudder: "); Serial.print(chRudder); Serial.print("    ");    
+  
+
+  // map receivers to servo positions (not real values)
+  int ailAngle = map(chAileronLeftRight, 1075, 1945, 0, 180); // need to add real values
+  int eleAngle = map(chElevator, 1070, 1941, 0, 180); // need to add real values
+  int rudderAngle = map(chRudder, 1066, 1936, 0, 180); // need to add real values
+
+  // write servo positions
+  ailLeft.write(ailAngle);
+  ailRight.write(ailAngle);
+  elevatorLeft.write(eleAngle);
+  elevatorRight.write(eleAngle);
+  rudder.write(rudderAngle);
+
+}
+  
+  
+  
