@@ -1,0 +1,64 @@
+#include <Servo.h>  
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BMP3XX.h>
+#include <Adafruit_ADXL375.h>
+
+#define BMP_SCL 19
+#define BMP_SDA 18
+//#define BMP_SDA 5
+//#define BMP_CS 6
+
+/*
+  - 1:Ailerons inverted - 2:Elevator inerted - 3:Throttle - 4:Rudder - 5: Ejection (Swtich C) - 6: Autopilot/Manual (Switch B) (Up - safe // Down - manual)
+  - Servos will be powered by the R12DS and signal wire all connected to the teensy pins
+  - They have to be PWM pins and non I2C pins
+  - This should also log data
+*/
+
+//obj declration
+
+Adafruit_BMP3XX altimeter;
+
+float refAlt;
+float junkAlt;
+int iteration = 1;
+
+
+void setup() {
+
+  Serial.begin (115200);
+
+  if (!altimeter.begin_I2C()) {
+    Serial.println("Could not find valid BMP390 sensor");
+    while(1);
+  }
+
+}
+
+
+
+void loop() {
+
+
+  if (iteration == 1) {
+    Serial.print("First!");
+    iteration++;
+    junkAlt = altimeter.readAltitude(1013.25);
+  }
+  else if (iteration == 2){
+    refAlt = altimeter.readAltitude(1013.25);
+    iteration++;
+  }
+
+  else if (iteration>2){
+  // data logging (if wired correctly)
+  float alt = altimeter.readAltitude(1013.25)-refAlt;
+  float current_alt = altimeter.readAltitude(1013.25);
+  Serial.print("Altitude: "); Serial.print(alt); Serial.println("    ");
+  Serial.print("Ref Alt: "); Serial.print(refAlt); Serial.println("    ");
+  Serial.print("Current Alt: "); Serial.print(current_alt); Serial.println("    ");
+
+  delay(100);
+  }
+}
