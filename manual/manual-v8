@@ -1,0 +1,148 @@
+#include <Servo.h>  
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BMP3XX.h>
+#include <Adafruit_ADXL375.h>
+
+/*
+  - 1:Ailerons inverted - 2:Elevator inerted - 3:Throttle - 4:Rudder - 5: Ejection (Swtich C) - 6: Autopilot/Manual (Switch B) (Up - safe // Down - manual)
+  - Servos will be powered by the R12DS and signal wire all connected to the teensy pins
+  - They have to be PWM pins and non I2C pins
+  - This should also log data
+*/
+
+// altimeter set up
+#define BMP_SCL 19
+#define BMP_SDO 18
+
+// accel set up
+#define BMP_SCL 24
+#define BMP_SDA 25
+
+//obj declration
+Servo ailLeft; 
+Servo ailRight; 
+Servo elevatorLeft
+Servo elevatorRight;
+Servo rudder;
+Servo ejectServo;
+
+Adafruit_BMP3XX altimeter;
+Adafruit_ADXL375 accel = Adafruit_ADXL375(12345);
+
+// set up alitude
+float refAlt;
+float junkAlt;
+int iteration = 1;
+
+// accel data set up
+const int EEPROM_ADDR_X = 0; // address for storing X acceleration data
+const int EEPROM_ADDR_Y = 1; // address for storing Y acceleration data
+const int EEPROM_ADDR_Z = 3; // address for storing Z acceleration data
+unsigned long lastSaveTime = 0;
+const unsigned long saveInternal = 500;
+
+//channel resolution
+int chAileronLeftRight; //ch1 to aileron R cntrl, 900left-1800right
+int chElevator;
+int chRudder; 
+int chEject;
+int chMode;
+
+// set up ejection boolean
+bool ejected = false;
+
+void setup() {
+
+  Serial.begin (115200);
+
+
+  // attach servos to pins
+  ailLeft.attach(9);
+  ailRight.attach(10);
+  elevatorLeft.attach(11);
+  elevatorRight.attach(12)
+  rudder.attach(24);
+  ejectServo.attach(25);
+}
+
+void loop() {
+
+  // set alt to zero
+  if (iteration == 1){
+    iteration++;
+    junkAlt = altimeter.readAltitude(1013.25);
+  }
+  else if (iteration == 2){
+    refAlt = altimeter.readAltitude(1013.25);
+    iteration++;
+  }
+
+  else if (iteration>2){
+    float alt = altimeter.readAltitude(1013.25)-refAlt;
+    iteration++;
+    // this is corresponding reciever pin to teensy pin 
+    chAileronLeftRight = pulseIn(4, HIGH);
+    chElevator = pulseIn(5, HIGH);
+    chRudder = pulseIn(6, HIGH);
+    chEject = pulseIn(7, HIGH);
+    chMode = pulseIn(8, HIGH);
+
+    // read accel data
+    unsigned long currentTime = millis();
+    if (currentTime - lastSaveTime >= saveInterval){
+      sensors_event_t event;
+      accel.getEvent(&event);
+
+      // store accel data
+      EEPROM.write(EEPROM_ADDR_X, event.acceleration.x)
+      EEPROM.write(EEPROM_ADDR_Y, event.acceleration.y)
+      EEPROM.write(EEPROM_ADDR_Z, event.acceleration.z)
+      // data logging
+      Serial.print("Acceleration X: "); Serial.print(event.acceleration.x); Serial.print("    ");
+      Serial.print("Acceleration Y: "); Serial.print(event.acceleration.y); Serial.print("    ");
+      Serial.print("Acceleration Z: "); Serial.println(event.acceleration.z);
+
+      lastSaveTime = currentTime;
+    }
+  
+    // data logging (if wired correctly)
+    Serial.print("Channel-AileronLeftRight: "); Serial.print(chAileronLeftRight); Serial.print("    ");
+    Serial.print("||  Channel-Elevator: "); Serial.print(chElevator); Serial.print("    ");
+    Serial.print("||  Channel-Rudder: "); Serial.print(chRudder); Serial.print("    ");    
+    Serial.print("||  Channel-Eject: "); Serial.print(chEject); Serial.print("    ");
+    Serial.print("||  Channel-Mode: "); Serial.print(chMode); Serial.println("    ");
+
+    Serial.print("Altitude: "); Serial.print(altimeter.readAltitude(1017.61)); Serial.print("    ");
+
+    // ejection code
+    if (!ejected) {
+      alt = readAlt();
+      if (alt <= 400 && chMode <1071) {
+        ejectServo.write(180); // likely need to edit how servo moves placeholder for now
+        ejected = true;
+      }
+    }
+  
+    // once ejected, allow for manual control
+    if (ejected) {
+      // map receivers to servo positions (not real values)
+      int ailAngle = map(chAileronLeftRight, 1075, 1945, 0, 180); // adjust mapping values so it flies how we want
+      int eleAngle = map(chElevator, 1070, 1941, 0, 180); // adjust mapping values so it flies how we want
+      int rudderAngle = map(chRudder, 1066, 1936, 0, 180); // adjust mapping values so it flies how we want
+
+      // write servo positions
+      ailLeft.write(ailAngle);
+      ailRight.write(ailAngle);
+      elevatorLeft.write(eleAngle);
+      elevatorRight.write(eleAngle);
+      rudder.write(rudderAngle);
+    }
+
+    delay(50)
+  }
+  
+  
+  
+
+}
