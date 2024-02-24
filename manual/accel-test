@@ -1,0 +1,41 @@
+#include <Servo.h>  
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BMP3XX.h>
+#include <Adafruit_ADXL375.h>
+
+#define BMP_SCL 24
+#define BMP_SDA 25
+
+/*
+  - 1:Ailerons inverted - 2:Elevator inerted - 3:Throttle - 4:Rudder - 5: Ejection (Swtich C) - 6: Autopilot/Manual (Switch B) (Up - safe // Down - manual)
+  - Servos will be powered by the R12DS and signal wire all connected to the teensy pins
+  - They have to be PWM pins and non I2C pins
+  - This should also log data
+*/
+
+//obj declration
+
+Adafruit_ADXL375 accel = Adafruit_ADXL375(12345);
+
+void setup() {
+
+  Serial.begin (115200);
+
+  if(!accel.begin()){
+    Serial.println("No ADXL375 detected... Check your wiring!");
+    while(1);
+  }
+}
+
+void loop() {
+
+  // data logging (if wired correctly)
+  sensors_event_t event;
+  accel.getEvent(&event);
+  Serial.print("X: "); Serial.print(event.acceleration.x); Serial.print(" ");
+  Serial.print("Y: "); Serial.print(event.acceleration.y); Serial.print(" ");
+  Serial.print("Z: "); Serial.print(event.acceleration.z); Serial.print("");
+  Serial.println("m/s^2 ");
+
+}
