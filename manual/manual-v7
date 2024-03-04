@@ -1,0 +1,107 @@
+#include <Servo.h>  
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BMP3XX.h>
+#include <Adafruit_ADXL375.h>
+
+/*
+  - 1:Ailerons inverted - 2:Elevator inerted - 3:Throttle - 4:Rudder - 5: Ejection (Swtich C) - 6: Autopilot/Manual (Switch B) (Up - safe // Down - manual)
+  - Servos will be powered by the R12DS and signal wire all connected to the teensy pins
+  - They have to be PWM pins and non I2C pins
+  - This should also log data
+*/
+
+//obj declration
+Servo ailLeft; 
+Servo ailRight; 
+Servo elevatorLeft
+Servo elevatorRight;
+Servo rudder;
+Servo ejectServo;
+
+Adafruit_BMP3XX altimeter;
+Adafruit_ADXL375 accelerometer;
+
+//channel resolution
+int chAileronLeftRight; //ch1 to aileron R cntrl, 900left-1800right
+int chElevator;
+int chRudder; 
+int chEject;
+int chMode;
+
+// set up ejection boolean
+bool ejected = false;
+
+void setup() {
+
+  Serial.begin (115200);
+
+  // sensor set up
+  altimeter.begin();
+  accelerometer.begin();
+
+  // attach servos to pins
+  ailLeft.attach(9);
+  ailRight.attach(10);
+  elevatorLeft.attach(11);
+  elevatorRight.attach(12)
+  rudder.attach(24);
+  ejectServo.attach(25);
+}
+
+// altimeter reading function
+int readAlt(){
+  float altReading = altimeter.readAltitude(1017.61) // sea level pressure in Huntsville the day I wrote this
+  return altReading;
+}
+
+void loop() {
+
+  // this is corresponding reciever pin to teensy pin 
+  chAileronLeftRight = pulseIn(4, HIGH);
+  chElevator = pulseIn(5, HIGH);
+  chRudder = pulseIn(6, HIGH);
+  chEject = pulseIn(7, HIGH);
+  chMode = pulseIn(8, HIGH);
+
+  
+  // data logging (if wired correctly)
+  Serial.print("Channel-AileronLeftRight: "); Serial.print(chAileronLeftRight); Serial.print("    ");
+  Serial.print("||  Channel-Elevator: "); Serial.print(chElevator); Serial.print("    ");
+  Serial.print("||  Channel-Rudder: "); Serial.print(chRudder); Serial.print("    ");    
+  Serial.print("||  Channel-Eject: "); Serial.print(chEject); Serial.print("    ");
+  Serial.print("||  Channel-Mode: "); Serial.print(chMode); Serial.println("    ");
+
+  Serial.print("Altitude: "); Serial.print(altimeter.readAltitude()); Serial.print("    ");
+  Serial.print("Acceleration X: "); Serial.print(accelerometer.readX()); Serial.print("    ");
+  Serial.print("Acceleration Y: "); Serial.print(accelerometer.readY()); Serial.print("    ");
+  Serial.print("Acceleration Z: "); Serial.println(accelerometer.readZ());
+
+  // ejection code
+  if (!ejected) {
+    alt = readAlt();
+    if (alt <= 400 && chMode <1071) {
+      ejectServo.write(180); // likely need to edit how servo moves placeholder for now
+      ejected = true;
+    }
+  }
+  
+  // once ejected, allow for manual control
+  if (ejected) {
+    // map receivers to servo positions (not real values)
+    int ailAngle = map(chAileronLeftRight, 1075, 1945, 0, 180); // adjust mapping values so it flies how we want
+    int eleAngle = map(chElevator, 1070, 1941, 0, 180); // adjust mapping values so it flies how we want
+    int rudderAngle = map(chRudder, 1066, 1936, 0, 180); // adjust mapping values so it flies how we want
+
+    // write servo positions
+    ailLeft.write(ailAngle);
+    ailRight.write(ailAngle);
+    elevatorLeft.write(eleAngle);
+    elevatorRight.write(eleAngle);
+    rudder.write(rudderAngle);
+  }
+  
+  
+  
+
+}

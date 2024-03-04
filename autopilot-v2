@@ -1,0 +1,71 @@
+#include <Servo.h>  
+
+//obj declration
+Servo ail_l; // left aileron
+Servo ail_r; //right aileron
+Servo elev_l; // left elevator
+Servo elev_r; //right elevator
+Servo rudd; // rudder
+
+//pins (change as needed)
+// Pin 4 to ch1
+// Pin 5 to ch2
+// Pin 6 to ch4
+// pin 6 to ch5
+// pin 9 to ail_l
+// pin 10 to ail_r
+// pin 11 to elev_l
+// pin 12 to elev_r
+// pin 13 to rudd
+// TX/RX PINS TO GPS
+// SDL/SCL PINS TO ALTIMETER
+
+//servo pos init 
+int pos_ail = 90; 
+int pos_elev = 90; 
+int pos_rudd = 90;
+
+//channel resolution
+int ch1; //ch1 to ailerons cntrl
+int ch2; //ch2 to elevators cntrl
+int ch4; //ch4 to rudder cntrl
+int ch5; //ch5 to manual override switch assuming channel 5 is 2 way switch
+
+void setup() {
+  //servos
+  ail_l.attach(9); 
+  ail_r.attach(10); 
+  elev_l.attach(11); 
+  elev_r.attach(12);
+  rudd.attach(13);
+
+  //start at initial pos
+  ail_l.write(pos_ail); ail_r.write(pos_ail);
+  elev_l.write(pos_ail); elev_r.write(pos_ail);
+  rudd.write(pos_rudd);
+
+  //channels
+  pinMode(4, INPUT); 
+  pinMode(5, INPUT); 
+  pinMode(6, INPUT); 
+  pinMode(7, INPUT); 
+
+  Serial.begin(9600); // Start serial communication
+}
+
+void loop() {
+  //get channel vals
+  ch1 = pulseIn(4, HIGH);
+  ch2 = pulseIn(5, HIGH);
+  ch4 = pulseIn(6, HIGH); 
+  ch5 = pulseIn(7, HIGH);
+ 
+  //manual override switched on
+  if (ch5 > 3000){ //switch flipped to HIGH
+   //MANUAL CODE HERE
+
+  }
+  else {
+    //AUTONOMOUS CODE HERE
+  }
+}
