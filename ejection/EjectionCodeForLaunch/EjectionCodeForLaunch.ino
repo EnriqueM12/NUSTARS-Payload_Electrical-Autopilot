@@ -2,14 +2,21 @@
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BMP3XX.h>
+#include <Adafruit_BNO055.h>
+#include <utility/imumaths.h>
 #include <SD.h>
 #include <TimeLib.h>
 
 #define SEALEVELPRESSURE_HPA (1013.25)
 
 Adafruit_BMP3XX altimeter; 
+Adafruit_BNO055 accelerometer = Adafruit_BNO055(55);
 float feet;
 float altInit;
+float acc_x;
+float acc_y;
+float acc_z;
+float acc_mag;
 
 /*  
 Wiring (excluding 5V and GND):
@@ -48,6 +55,13 @@ void setup() {
 
   altimeter.readAltitude(SEALEVELPRESSURE_HPA) * 3.2808399;
   delay(100);
+
+  // accelerometer set up
+  //if (!accelerometer.begin()){
+    //Serial.println("Could not find a valid BNO055 sensor");
+    //while (1);
+  //}
+  accelerometer.setExtCrystalUse(true);
   
 
   ejectServo.attach(8);
@@ -60,7 +74,7 @@ void setup() {
   altInit = 0;
   for (int i = 0; i < 50; i++) {
     altInit += altimeter.readAltitude(SEALEVELPRESSURE_HPA) * 3.2808399;
-    //Serial.print(altInit); Serial.print(" ");
+    Serial.print(altInit); Serial.print(" ");
     delay(100);
   }
   altInit = altInit / 50;
@@ -84,12 +98,30 @@ void loop() {
   chEject = pulseIn(4, HIGH);
   posEject = map(chEject, 1070, 1931, ejectMin, ejectMax);
 
-  logData();
-  servoMove();
+
 
   Serial.print("Feet: "); Serial.print(feet);
   Serial.print("\t\tChannel: "); Serial.println(chEject);
   
+  sensors_event_t event;
+  accelerometer.getEvent(&event);
+  Serial.print("Acceleration X: ");
+  acc_x = event.acceleration.x;
+  Serial.print(acc_x);
+  Serial.print(" m/s^2");
+  Serial.print("Acceleration Y: ");
+  acc_y = event.acceleration.y;
+  Serial.print(acc_y);
+  Serial.print(" m/s^2");
+  Serial.print("Acceleration Z: ");
+  acc_z = event.acceleration.z;
+  Serial.print(acc_z);
+  Serial.println(" m/s^2");
+
+  acc_mag = sqrt((acc_x*acc_x)+(acc_y*acc_y)+(acc_z*acc_z));
+
+  logData();
+  servoMove();
 
   delay(50);
 }
@@ -106,7 +138,7 @@ void servoMove() {
   }
 }
 
-void logData() { // Prints the altimeter and 
+void logData() { // Prints the altimeter and accelerometer
   // Time 
   File dataFile;
   currentMinute = minute();
@@ -120,20 +152,18 @@ void logData() { // Prints the altimeter and
 
   // Logging
   dataString += "Altitude: " + String(feet) + "\t\t\t";
-  if (feet <= 400) {
+  dataString += "Acceleration: " + String(acc_mag) + "\t\t\t";
+  if (feet <= 400 && feet >=50) {
     dataString += "*********BELOW 400 BELOW 400 BELOW 400**********\t\t\t";
   }
   if (chEject >= 1870) {
     dataString += "*********ARMED ARMED ARMED**********\t\t\t";
+  }
+  if (feet <= 50) {
+    dataString += "*********ABOUT TO LAND*************\t\t\t";
   }
   dataString += String(currentMinute) + ":" + String(currentSecond) + ":" + String(currentMillis) + "\n";
 
   dataFile.println(dataString);
   dataFile.close();
 }
-
-
-
-
-
-
